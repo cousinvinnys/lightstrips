@@ -23,7 +23,7 @@ def write_line(data):
 
 if __name__ == '__main__':
     jobs = []
-    jobs.append(Job(rainbow_breathe(0.005), ttl=5, name='Rainbow Breathe'))
+    jobs.append(Job(rainbow_breathe(300, 0.005), ttl=5, name='Rainbow Breathe'))
     current_job = None
     halting = False
     while True:
@@ -46,7 +46,7 @@ if __name__ == '__main__':
             if not current_job.is_running() and not current_job.is_dead():
                 current_job.start()
                 if DEBUG:
-                    print(f'Started job: {current_job.name} ({current_job.time_remaining()}s remaining)')
+                    print(f'Started job: {current_job.name} ({round(current_job.time_remaining(), 3)}s remaining)')
         
             # Get/render next line of current job
             next_line = current_job.get_next_line()
