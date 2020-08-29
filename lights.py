@@ -21,7 +21,7 @@ def write_line(data):
 
 if __name__ == '__main__':
     jobs = []
-    jobs.append(Job(rainbow_breathe, name='Rainbow Breathe'))
+    jobs.append(Job(rainbow_breathe(), name='Rainbow Breathe'))
     current_job = None
     while True:
         if len(jobs) > 0:
@@ -35,7 +35,6 @@ if __name__ == '__main__':
         # Check if current job is running, if not, start it
         if not current_job.is_running():
             print(f'Started job: {current_job.name}')
-            print('Started job: ' + str(current_job.name))
             current_job.start()
         
         # Get/render next line of current job
