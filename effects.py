@@ -27,7 +27,7 @@ def breathe_color(pixel_count=300, color1=(255, 255, 255), color2=(0, 0, 0), spe
     pass
 
 
-def solid_color(pixel_count=300, color1=(255,0,0)):
+def solid_color(pixel_count=300, color1=(255, 0, 0)):
     while True:
         yield [color1] * pixel_count
 

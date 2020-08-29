@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+
+<html>
+    <body>
+        <form action = "/effects" method = "POST">
+            {% for name in effects %}
+                <input type="radio" id="{{name}}" name="effect" value="{{name}}" />
+                <label for="{{name}}">{{name}}</label>
+            {% endfor %}
+            <input type="submit">
+        </form>
+    </body>
+</html>
