@@ -48,4 +48,4 @@ if __name__ == '__main__':
             print(f'Removed job: {current_job.name}')
             jobs.pop(0)
         
-        print(f'{1 / (perf_counter - frame_start)} fps')
+        print(f'{1 / (perf_counter() - frame_start)} fps')
