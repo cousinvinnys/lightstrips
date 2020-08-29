@@ -8,6 +8,7 @@ import colorsys
 from job import Job
 from effects import *
 
+PRINT_FRAMERATE = False
 STRIP_LENGTH = 300
 pixels = NeoPixel(board.D18, STRIP_LENGTH, auto_write=False)
 
@@ -21,10 +22,11 @@ def write_line(data):
 
 if __name__ == '__main__':
     jobs = []
-    jobs.append(Job(rainbow_breathe(), name='Rainbow Breathe'))
+    jobs.append(Job(rainbow_breathe(), ttl=5, name='Rainbow Breathe'))
     current_job = None
     while True:
-        frame_start = perf_counter()
+        if PRINT_FRAMERATE:
+            frame_start = perf_counter()
         
         if len(jobs) > 0:
             # Sort by job nice values, smallest to largest
@@ -35,7 +37,7 @@ if __name__ == '__main__':
             write_line(STRIP_LENGTH * [(0, 0, 0)])
         
         # Check if current job is running, if not, start it
-        if not current_job.is_running():
+        if not current_job.is_running() and not job.is_dead():
             print(f'Started job: {current_job.name} ({current_job.time_remaining()}s remaining)')
             current_job.start()
         
@@ -47,5 +49,7 @@ if __name__ == '__main__':
         else:
             print(f'Removed job: {current_job.name}')
             jobs.pop(0)
+            current_job = None
         
-        print(f'{1 / (perf_counter() - frame_start)} fps')
+        if PRINT_FRAMERATE:
+            print(f'{1 / (perf_counter() - frame_start)} fps')
