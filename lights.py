@@ -15,6 +15,7 @@ import colorsys
 from job import Job
 from effects import *
 from threading import Lock
+import threading
 
 
 DEBUG = True
@@ -23,6 +24,8 @@ STRIP_LENGTH = 300
 
 
 class LightController:
+    _count = 0
+
     def __init__(self, strip_length=300, print_framerate=PRINT_FRAMERATE, debug=DEBUG, rest_state=None):
         self.strip_length = strip_length
         self.print_framerate = print_framerate
@@ -35,6 +38,7 @@ class LightController:
 
         # Create the array of jobs
         self.jobs = []
+        self.id = LightController._count
 
         self._job_lock = Lock()
 
@@ -60,15 +64,18 @@ class LightController:
 
         # Get the current most important job
         with self._job_lock:
+            if self.debug:
+                print(f'{len(self.jobs)} jobs currently in queue (#{threading.current_thread()})')
+
             if len(self.jobs) > 0:
                 self.current_job = self.jobs[0]
 
             # If there is no job, set the strip to its rest state
             else:
                 self._write_line(self.rest_state)
+                self.current_job = None
 
             if type(self.current_job) == Job:
-
                 # If the current job hasn't been started, start it
                 if not self.current_job.is_running() and not self.current_job.is_dead():
                     self.current_job.start()
@@ -77,8 +84,12 @@ class LightController:
 
                 # Get the next line fromt he job generator and push it to the strip
                 next_line = self.current_job.get_next_line()
+
                 if next_line is not None:
                     self._write_line(next_line)
+
+                    if self.debug:
+                        print(f'{next_line[0]} (#{threading.current_thread()})')
 
                 # If the job has expired, kill it and remove it from the the list
                 else:

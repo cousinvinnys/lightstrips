@@ -16,6 +16,7 @@ def hello_name(user):
 @app.route("/gae")
 def gae():
     global lights
+    print("Adding a job to the queue")
     lights.add_job(Job(rainbow_wave(300), ttl=10, name="u gae lol"))
     return "You gae"
 
@@ -39,8 +40,9 @@ def run_lights(lights):
 
 
 if __name__ == '__main__':
-    light_thread = Thread(target=run_lights, args=(lights, ))
+    light_thread = Thread(target=run_lights, args=(lights, ), daemon=True)
     light_thread.start()
 
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=False)
+
 
