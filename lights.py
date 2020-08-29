@@ -3,9 +3,11 @@ try:
     import board
     from neopixel import NeoPixel
     import neopixel
+    print("Running lights")
 except ImportError:
     from virtual_lights import VirtualBoard as board
     from virtual_lights import VirtualPixels as NeoPixel
+    print("Running virtual")
 
 from time import sleep, perf_counter
 from random import randint
