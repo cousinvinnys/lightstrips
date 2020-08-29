@@ -34,7 +34,8 @@ if __name__ == '__main__':
         
         # Check if current job is running, if not, start it
         if not current_job.is_running():
-            print(f'Started job: {current_job.name} ')
+            print(f'Started job: {current_job.name}')
+            print('Started job: ' + str(current_job.name))
             current_job.start()
         
         # Get/render next line of current job
@@ -43,5 +44,5 @@ if __name__ == '__main__':
             write_line(next_line)
         # Kill/remove the job if past ttl
         else:
-            print(f'Removed job: {current_job.name} ')
+            print(f'Removed job: {current_job.name}')
             jobs.pop(0)

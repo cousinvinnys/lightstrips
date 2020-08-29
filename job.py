@@ -13,11 +13,11 @@ class Job:
 
         self.name = f"job{_num_jobs}" if name is None else name
 
-        _num_jobs += 1
+        Job._num_jobs += 1
 
     def __str__(self):
         return f'{self.name} started at {self._timeStart}'
-        
+
     def start(self):
         self._is_alive = True
         self._started = True
