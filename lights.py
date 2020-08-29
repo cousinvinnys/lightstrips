@@ -37,7 +37,7 @@ if __name__ == '__main__':
             write_line(STRIP_LENGTH * [(0, 0, 0)])
         
         # Check if current job is running, if not, start it
-        if not current_job.is_running() and not job.is_dead():
+        if not current_job.is_running() and not current_job.is_dead():
             print(f'Started job: {current_job.name} ({current_job.time_remaining()}s remaining)')
             current_job.start()
         
