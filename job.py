@@ -9,7 +9,7 @@ class Job:
         self.never_die = self.ttl < 0
         self._is_alive = False
         self._started = False
-        self._timeStart = 0
+        self._time_start = 0
 
         self.name = f"job{_num_jobs}" if name is None else name
 
@@ -24,7 +24,7 @@ class Job:
         self._time_start = time()
 
     def get_next_line(self):
-        if time() - self._is_alive > self.ttl and not self.never_die:
+        if time() - self._time_start > self.ttl and not self.never_die:
             self._is_alive = False
         
         return next(self.generator) if self._is_alive else None
