@@ -1,7 +1,8 @@
 from time import time
 
 class Job:
-    def __init__(self, generator, nice=0, ttl=60):
+    _num_jobs = 0
+    def __init__(self, generator, nice=0, ttl=60, name=None):
         self.generator = generator
         self.nice = nice
         self.ttl = ttl
@@ -10,6 +11,13 @@ class Job:
         self._started = False
         self._timeStart = 0
 
+        self.name = f"job{_num_jobs}" if name is None else name
+
+        _num_jobs += 1
+
+    def __str__(self):
+        return f'{self.name} started at {self._timeStart}'
+        
     def start(self):
         self._is_alive = True
         self._started = True
