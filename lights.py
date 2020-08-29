@@ -1,12 +1,19 @@
 #!/usr/bin/env python3
-import board
-from neopixel import NeoPixel
-import neopixel
+try:
+    import board
+    from neopixel import NeoPixel
+    import neopixel
+except ImportError:
+    from virtual_lights import VirtualBoard as board
+    from virtual_lights import VirtualPixels as NeoPixel
+
 from time import sleep, perf_counter
 from random import randint
 import colorsys
 from job import Job
 from effects import *
+from threading import Lock
+
 
 DEBUG = True
 PRINT_FRAMERATE = False
@@ -14,50 +21,84 @@ STRIP_LENGTH = 300
 pixels = NeoPixel(board.D18, STRIP_LENGTH, auto_write=False)
 
 
-def write_line(data):
-    global pixels
-    
-    for i in range(len(pixels)):
-        pixels[i] = data[i % len(data)]
-    pixels.show()
+class LightController:
+    def __init__(self, strip_length=300, print_framerate=PRINT_FRAMERATE, debug=DEBUG, rest_state=None):
+        self.strip_length = strip_length
+        self.print_framerate = print_framerate
+        self.debug = debug
+        self.pixels = NeoPixel(board.D18, self.strip_length, auto_write=False)
+
+        self.current_job = None
+
+        self.rest_state = rest_state if rest_state is not None else [(0, 0, 0)] * self.strip_length
+
+        # Create the array of jobs
+        self.jobs = []
+
+        self._job_lock = Lock()
+
+    def _write_line(self, data):
+        for i in range(len(pixels)):
+            self.pixels[i] = data[i % len(data)]
+        self.pixels.show()
+
+    def add_job(self, job):
+        with self._job_lock:
+            self.jobs.append(job)
+
+            # Sort by job nice values, smallest to largest
+            self.jobs.sort(key=lambda x: x.nice)
+
+    def clear_jobs(self):
+        with self._job_lock:
+            self.jobs.clear()
+
+    def step(self):
+        if self.print_framerate:
+            frame_start = perf_counter()
+
+        # Get the current most important job
+        with self._job_lock:
+            if len(self.jobs) > 0:
+                self.current_job = self.jobs[0]
+
+            # If there is no job, set the strip to its rest state
+            else:
+                self._write_line(self.rest_state)
+
+            if type(self.current_job) == Job:
+
+                # If the current job hasn't been started, start it
+                if not self.current_job.is_running() and not self.current_job.is_dead():
+                    self.current_job.start()
+                    if self.debug:
+                        print(f'Started job: {self.current_job.name} ({round(self.current_job.time_remaining(), 3)}s remaining)')
+
+                # Get the next line fromt he job generator and push it to the strip
+                next_line = self.current_job.get_next_line()
+                if next_line is not None:
+                    self._write_line(next_line)
+
+                # If the job has expired, kill it and remove it from the the list
+                else:
+                    if self.debug:
+                        print(f'Removed job: {self.current_job.name}')
+                    self.jobs.pop(0)
+                    self.current_job = None
+
+        if self.print_framerate:
+            print(f'{1 / (perf_counter() - frame_start)} fps')
+
 
 if __name__ == '__main__':
-    jobs = []
-    jobs.append(Job(rainbow_breathe(300, 0.005), ttl=5, name='Rainbow Breathe'))
-    current_job = None
-    halting = False
+    lights = LightController(300, debug=True)
+    lights.add_job(Job(rainbow_wave(300, -0.01), ttl=5, name='Rainbow Wave'))
+    lights.add_job(Job(rainbow_breathe(300, -0.01), ttl=5, name='Rainbow Breathe'))
+    lights.add_job(Job(rainbow_wave(300, 0.01), ttl=5, name='Rainbow Wave 2'))
+    lights.add_job(Job(breathe_color(300, color1=(0, 255, 127), speed=0.1), ttl=10, name='Breath to black'))
+    lights.add_job(Job(breathe_color(300, color1=(255, 0, 0), color2=(0, 255, 0), speed=0.1), ttl=10, name='Colour Breath'))
+    lights.add_job(Job(solid_color(300, (255, 0, 255)), ttl=2, name='Solid Pink'))
+    lights.add_job(Job(solid_color(300, (69, 17, 125)), ttl=2, name='Solid Periwinkle'))
+
     while True:
-        if PRINT_FRAMERATE:
-            frame_start = perf_counter()
-        
-        if len(jobs) > 0:
-            # Sort by job nice values, smallest to largest
-            jobs.sort(key=lambda x: x.nice)
-            current_job = jobs[0]
-        else:
-            # Default job is off
-            if DEBUG and not halting:
-                print('No jobs, shutting off')
-            write_line(STRIP_LENGTH * [(0, 0, 0)])
-            halting = True
-        
-        # Check if current job is running, if not, start it
-        if type(current_job) == Job:
-            if not current_job.is_running() and not current_job.is_dead():
-                current_job.start()
-                if DEBUG:
-                    print(f'Started job: {current_job.name} ({round(current_job.time_remaining(), 3)}s remaining)')
-        
-            # Get/render next line of current job
-            next_line = current_job.get_next_line()
-            if next_line is not None:
-                write_line(next_line)
-            # Kill/remove the job if past ttl
-            else:
-                if DEBUG:
-                    print(f'Removed job: {current_job.name}')
-                jobs.pop(0)
-                current_job = None
-        
-        if PRINT_FRAMERATE:
-            print(f'{1 / (perf_counter() - frame_start)} fps')
+        lights.step()
