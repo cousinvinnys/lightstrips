@@ -2,7 +2,7 @@
 import board
 from neopixel import NeoPixel
 import neopixel
-from time import sleep
+from time import sleep, perf_counter
 from random import randint
 import colorsys
 from job import Job
@@ -24,6 +24,8 @@ if __name__ == '__main__':
     jobs.append(Job(rainbow_breathe(), name='Rainbow Breathe'))
     current_job = None
     while True:
+        frame_start = perf_counter()
+        
         if len(jobs) > 0:
             # Sort by job nice values, smallest to largest
             jobs.sort(key=lambda x: x.nice)
@@ -34,7 +36,7 @@ if __name__ == '__main__':
         
         # Check if current job is running, if not, start it
         if not current_job.is_running():
-            print(f'Started job: {current_job.name}')
+            print(f'Started job: {current_job.name} ({current_job.time_remaining()}s remaining)')
             current_job.start()
         
         # Get/render next line of current job
@@ -45,3 +47,5 @@ if __name__ == '__main__':
         else:
             print(f'Removed job: {current_job.name}')
             jobs.pop(0)
+        
+        print(f'{1 / (perf_counter - frame_start)} fps')

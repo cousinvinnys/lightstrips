@@ -1,4 +1,4 @@
-from time import time
+from time import perf_counter
 
 class Job:
     _num_jobs = 0
@@ -21,10 +21,10 @@ class Job:
     def start(self):
         self._is_alive = True
         self._started = True
-        self._time_start = time()
+        self._time_start = perf_counter()
 
     def get_next_line(self):
-        if time() - self._time_start > self.ttl and not self.never_die:
+        if perf_counter() - self._time_start > self.ttl and not self.never_die:
             self._is_alive = False
         
         return next(self.generator) if self._is_alive else None
@@ -34,3 +34,6 @@ class Job:
     
     def is_dead(self):
         return not self._is_alive and self._started
+
+    def time_remaining(self):
+        return self.ttl - perf_counter() + self._time_start 
