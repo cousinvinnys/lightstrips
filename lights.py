@@ -39,7 +39,7 @@ class LightController:
         self._job_lock = Lock()
 
     def _write_line(self, data):
-        for i in range(len(pixels)):
+        for i in range(len(self.pixels)):
             self.pixels[i] = data[i % len(data)]
         self.pixels.show()
 
