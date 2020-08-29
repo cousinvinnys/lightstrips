@@ -13,10 +13,10 @@ class Job:
     def start(self):
         self._is_alive = True
         self._started = True
-        self._time_start = time.time()
+        self._time_start = time()
 
     def get_next_line(self):
-        if time.time() - self._is_alive > self.ttl and not self.never_die:
+        if time() - self._is_alive > self.ttl and not self.never_die:
             self._is_alive = False
         
         return next(self.generator) if self._is_alive else None
