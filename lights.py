@@ -7,7 +7,7 @@ try:
 except ImportError:
     from virtual_lights import VirtualBoard as board
     from virtual_lights import VirtualPixels as NeoPixel
-    print("Running virtual")
+    print("Running virtual lights")
 
 from time import sleep, perf_counter
 from random import randint
@@ -20,7 +20,6 @@ from threading import Lock
 DEBUG = True
 PRINT_FRAMERATE = False
 STRIP_LENGTH = 300
-pixels = NeoPixel(board.D18, STRIP_LENGTH, auto_write=False)
 
 
 class LightController:
@@ -89,7 +88,7 @@ class LightController:
                     self.current_job = None
 
         if self.print_framerate:
-            print(f'{1 / (perf_counter() - frame_start)} fps')
+            print(f'{round(1 / (perf_counter() - frame_start), 2)} fps')
 
 
 if __name__ == '__main__':
