@@ -3,11 +3,40 @@
 <html>
     <body>
         <form action = "/effects" method = "POST">
-            {% for name in effects %}
-                <input type="radio" id="{{name}}" name="effect" value="{{name}}" />
-                <label for="{{name}}">{{name}}</label>
+            {% for name, effect in effects.items() %}
+                <fieldset>
+                    <legend>
+                        <input type="radio" id="{{name}}" name="effect" value="{{name}}" />
+                        <label for="{{name}}"><b>{{effect['name']}}</b></label>
+                    </legend>
+                    <p>{{effect['description']}}</p>
+                    <ul>
+                    {% for option_name, option in effect['options'].items() %}
+                        {% if 'no_input' not in option['notes'] %}
+                            <li>
+                                <label for="{{option_name}}" title="{{option['description']}}">{{option['name']}}</label>
+                                {% if option['type'] == 'color' %}
+                                    <input type="color" id="{{name}}_{{option_name}}" name="{{name}}_{{option_name}}" title="{{option['description']}}"/>
+                                {% elif option['type'] == 'float' %}
+                                    {% if 'range' in option['notes'].keys() %}
+                                        <input type="range" id="{{name}}_{{option_name}}" name="{{name}}_{{option_name}}" title="{{option['description']}}" min="{{option['notes']['range'][0]}}" max="{{option['notes']['range'][1]}}" steps="100" />
+                                    {% else %}
+                                        <input type="range" id="{{name}}_{{option_name}}" name="{{name}}_{{option_name}}" title="{{option['description']}}" min="0" max="100" steps=100 />
+                                    {% endif %}
+                                {% elif option['type'] == 'int' %}
+                                    {% if 'range' in option['notes'].keys() %}
+                                        <input type="number" id="{{name}}_{{option_name}}" name="{{name}}_{{option_name}}" title="{{option['description']}}" min="{{option['notes']['range'][0]}}" max="{{option['notes']['range'][1]}}"/>
+                                    {% else %}
+                                        <input type="number" id="{{name}}_{{option_name}}" name="{{name}}_{{option_name}}" title="{{option['description']}}" min="0" max="100" />
+                                    {% endif %}
+                                {% endif %}  
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    </ul>
+                </fieldset>
             {% endfor %}
-            <input type="submit">
+            <input type="submit" value="Add effect"/>
         </form>
     </body>
 </html>

@@ -18,7 +18,7 @@ from threading import Lock
 import threading
 
 
-DEBUG = True
+DEBUG = False
 PRINT_FRAMERATE = False
 STRIP_LENGTH = 300
 
@@ -82,7 +82,7 @@ class LightController:
                     if self.debug:
                         print(f'Started job: {self.current_job.name} ({round(self.current_job.time_remaining(), 3)}s remaining)')
 
-                # Get the next line fromt he job generator and push it to the strip
+                # Get the next line from the job generator and push it to the strip
                 next_line = self.current_job.get_next_line()
 
                 if next_line is not None:
@@ -104,11 +104,11 @@ class LightController:
 
 if __name__ == '__main__':
     lights = LightController(300, debug=True)
-    lights.add_job(Job(rainbow_wave(300, -0.01), ttl=5, name='Rainbow Wave'))
-    lights.add_job(Job(rainbow_breathe(300, -0.01), ttl=5, name='Rainbow Breathe'))
-    lights.add_job(Job(rainbow_wave(300, 0.01), ttl=5, name='Rainbow Wave 2'))
-    lights.add_job(Job(breathe_color(300, color1=(0, 255, 127), speed=0.1), ttl=10, name='Breath to black'))
-    lights.add_job(Job(breathe_color(300, color1=(255, 0, 0), color2=(0, 255, 0), speed=0.1), ttl=10, name='Colour Breath'))
+    lights.add_job(Job(rainbow_wave(300, -20), ttl=5, name='Rainbow Wave'))
+    lights.add_job(Job(rainbow_breathe(300, 20), ttl=5, name='Rainbow Breathe'))
+    lights.add_job(Job(rainbow_wave(300, 20), ttl=5, name='Rainbow Wave 2'))
+    lights.add_job(Job(breathe_color(300, color_1=(0, 255, 127)), ttl=10, name='Breath to black'))
+    lights.add_job(Job(breathe_color(300, color_1=(255, 0, 0), color_2=(0, 255, 0)), ttl=10, name='Color Breath'))
     lights.add_job(Job(solid_color(300, (255, 0, 255)), ttl=2, name='Solid Pink'))
     lights.add_job(Job(solid_color(300, (69, 17, 125)), ttl=2, name='Solid Periwinkle'))
 
