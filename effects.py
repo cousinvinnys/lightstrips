@@ -5,7 +5,7 @@ def _hsv2rgb(h, s, v):
     return tuple(round(i * 255) for i in colorsys.hsv_to_rgb(h,s,v))
 
 
-def breathe_color(pixel_count=300, color_1=(255, 255, 255), color_2=(0, 0, 0), speed=20):
+def breathe_color(pixel_count, color_1=(255, 255, 255), color_2=(0, 0, 0), speed=20):
     """Continuously fades between two colors
 
     Args:
@@ -38,7 +38,7 @@ def breathe_color(pixel_count=300, color_1=(255, 255, 255), color_2=(0, 0, 0), s
     pass
 
 
-def solid_color(pixel_count=300, color=(255, 0, 0)):
+def solid_color(pixel_count, color=(255, 0, 0)):
     """Sets the lights to a single solid color
 
     Args:
@@ -52,7 +52,7 @@ def solid_color(pixel_count=300, color=(255, 0, 0)):
         yield [color] * pixel_count
 
 
-def rainbow_breathe(pixel_count=300, speed=20):
+def rainbow_breathe(pixel_count, speed=20):
     """Loops all of the pixels simultaneously through a rainbow of colors
 
     Args:
@@ -68,7 +68,7 @@ def rainbow_breathe(pixel_count=300, speed=20):
         hue += speed / 2000
         hue %= 1
 
-def rainbow_wave(pixel_count=300, wave_speed=20, wave_period=100):
+def rainbow_wave(pixel_count, wave_speed=20, wave_period=100):
     """Scrolls a wave of RGB puke across the light Strips
 
     Args:
@@ -84,7 +84,7 @@ def rainbow_wave(pixel_count=300, wave_speed=20, wave_period=100):
         yield [_hsv2rgb((offset + i / wave_period) % 1, 1, 1) for i in range(pixel_count)]
         offset += wave_speed / 2000
 
-def test_effect(pixel_count=300, integer=0, integer_with_range=0, floating=0.0, floating_with_range=0.0, color=(255, 255, 255)):
+def test_effect(pixel_count, integer=0, integer_with_range=0, floating=0.0, floating_with_range=0.0, color=(255, 255, 255)):
     """Solely for testing the effect selection page. Displays an alternating checkerboard pattern
 
     Args:

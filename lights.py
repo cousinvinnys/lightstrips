@@ -64,9 +64,6 @@ class LightController:
 
         # Get the current most important job
         with self._job_lock:
-            if self.debug:
-                print(f'{len(self.jobs)} jobs currently in queue (#{threading.current_thread()})')
-
             if len(self.jobs) > 0:
                 self.current_job = self.jobs[0]
 
@@ -87,9 +84,6 @@ class LightController:
 
                 if next_line is not None:
                     self._write_line(next_line)
-
-                    if self.debug:
-                        print(f'{next_line[0]} (#{threading.current_thread()})')
 
                 # If the job has expired, kill it and remove it from the the list
                 else:

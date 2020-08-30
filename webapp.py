@@ -7,7 +7,7 @@ import effects
 from effects import *
 
 app = Flask(__name__)
-lights = LightController(300, debug=False)
+lights = LightController(300, debug=True)
 
 effects_dict = {}
 
@@ -31,8 +31,43 @@ def hard_coded(effect):
 
 @app.route('/effects', methods=['POST', 'GET'])
 def show_effects():
-    if request.method == 'POST':
-        print(f'Got a new effect request: {dict(request.form.items())}')
+    global lights
+    if request.method == 'POST' and 'effect' in request.form.keys():
+        print(f'Requested effect {request.form["effect"]}')
+        effect_name = request.form["effect"]
+
+        effect_options = {}
+
+        for key, raw_value in request.form.items():
+            if key.startswith(f'{effect_name}_'):
+                print(f'{effects_dict[effect_name]["options"][key[len(f"{effect_name}_"):]]}')
+
+                if effects_dict[effect_name]['options'][key[len(f'{effect_name}_'):]]['type'] == 'color':
+                    value = (int(raw_value[1:3], 16), int(raw_value[3:5], 16), int(raw_value[5:7], 16))
+                elif effects_dict[effect_name]['options'][key[len(f'{effect_name}_'):]]['type'] == 'float':
+                    value = float(raw_value)
+                elif effects_dict[effect_name]['options'][key[len(f'{effect_name}_'):]]['type'] == 'int':
+                    value = int(raw_value)
+                elif effects_dict[effect_name]['options'][key[len(f'{effect_name}_'):]]['type'] == 'string':
+                    value = str(raw_value)
+                else:
+                    value = raw_value
+
+                print(value)
+                effect_options[key[len(f'{effect_name}_'):]] = value
+
+        effect_priority = float(request.form['priority'])
+
+        time_list = [float(i) for i in request.form['length'].split(':')]
+
+        effect_length = 0
+
+        for i, value in enumerate(time_list):
+            effect_length += value * 60 ** (len(time_list) - (i + 1))
+
+        lights.add_job(Job(effects_dict[effect_name]['generator'](300, **effect_options), nice=effect_priority, ttl=effect_length, name=effects_dict[effect_name]['name']))
+
+        
 
     return render_template('effects.html', effects=effects_dict)
 
@@ -63,7 +98,7 @@ if __name__ == '__main__':
         description = doc[0:doc.find('Args:')].strip()
 
 
-        effects_dict[function[0]] = {'name': function[0].replace('_', ' ').capitalize(), 'description': description, 'options': {}}
+        effects_dict[function[0]] = {'name': function[0].replace('_', ' ').capitalize(), 'description': description, 'generator': function[1], 'options': {}}
 
         args = [i.strip() for i in doc[doc.find('Args:') + len('Args:') : doc.find('Yields:')].split('\n') if i.strip() != '']
 
