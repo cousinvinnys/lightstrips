@@ -33,15 +33,12 @@ def hard_coded(effect):
 def show_effects():
     global lights
     if request.method == 'POST' and 'effect' in request.form.keys():
-        print(f'Requested effect {request.form["effect"]}')
         effect_name = request.form["effect"]
 
         effect_options = {}
 
         for key, raw_value in request.form.items():
             if key.startswith(f'{effect_name}_'):
-                print(f'{effects_dict[effect_name]["options"][key[len(f"{effect_name}_"):]]}')
-
                 if effects_dict[effect_name]['options'][key[len(f'{effect_name}_'):]]['type'] == 'color':
                     value = (int(raw_value[1:3], 16), int(raw_value[3:5], 16), int(raw_value[5:7], 16))
                 elif effects_dict[effect_name]['options'][key[len(f'{effect_name}_'):]]['type'] == 'float':
@@ -53,7 +50,6 @@ def show_effects():
                 else:
                     value = raw_value
 
-                print(value)
                 effect_options[key[len(f'{effect_name}_'):]] = value
 
         effect_priority = float(request.form['priority'])
@@ -132,6 +128,6 @@ if __name__ == '__main__':
     light_thread = Thread(target=run_lights, args=(lights, ), daemon=True)
     light_thread.start()
 
-    app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=False)
+    app.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False)
 
 

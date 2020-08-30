@@ -43,7 +43,7 @@ def solid_color(pixel_count, color=(255, 0, 0)):
 
     Args:
         pixel_count (int): Number of LEDs in the strips $$ no_input
-        color1 (color): The color to display
+        color (color): The color to display
 
     Yields:
         list: The colors to be output to the pixels
