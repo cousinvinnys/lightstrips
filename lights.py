@@ -54,7 +54,7 @@ class LightController:
             # Sort by job nice values, smallest to largest
             self.jobs.sort(key=lambda x: x.nice)
 
-            for job in jobs:
+            for job in self.jobs:
                 print(f'Job "{job.name}" "{job.nice}" "{job.ttl}"')
 
     def clear_jobs(self):
