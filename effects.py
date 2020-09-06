@@ -1,5 +1,6 @@
 import colorsys
 from random import randint
+from time import time
 
 
 def _hsv2rgb(h, s, v):
@@ -9,6 +10,18 @@ def _hsv2rgb(h, s, v):
 def _color_brightness(color, brightness):
     # Brightness (float): 0-1
     return (int(brightness * color[0]), int(brightness * color[1]), int(brightness * color[2]))
+
+
+def _blend(color_1, color_2, percentage_color_1):
+    r = int((color_1[0] * percentage_color_1 + color_2[0] * (1 - percentage_color_1)) / 2)
+    g = int((color_1[1] * percentage_color_1 + color_2[1] * (1 - percentage_color_1)) / 2)
+    b = int((color_1[2] * percentage_color_1 + color_2[2] * (1 - percentage_color_1)) / 2)
+
+    r = min(255, max(0, r))
+    g = min(255, max(0, g))
+    b = min(255, max(0, b))
+
+    return (r, g, b)
 
 
 def breathe_color(pixel_count, color_1=(255, 255, 255), color_2=(0, 0, 0), speed=20):
@@ -25,15 +38,9 @@ def breathe_color(pixel_count, color_1=(255, 255, 255), color_2=(0, 0, 0), speed
     """
     blend = 0
     while True:
-        r = int((color_1[0] * blend + color_2[0] * (1 - blend)) / 2)
-        g = int((color_1[1] * blend + color_2[1] * (1 - blend)) / 2)
-        b = int((color_1[2] * blend + color_2[2] * (1 - blend)) / 2)
+        blended = _blend(color_1, color_2, blend)
 
-        r = min(255, max(0, r))
-        g = min(255, max(0, g))
-        b = min(255, max(0, b))
-
-        yield [(r, g, b)] * pixel_count
+        yield [blended] * pixel_count
 
         blend += speed / 2000
 
@@ -134,5 +141,28 @@ def stars(pixel_count, starriness=10, color=(255, 255, 255)):
             pixels.append(_color_brightness(color, stars[i] / 255))
 
         yield pixels
+
+
+def fade(pixel_count, from_color=(0, 0, 0), to_color=(255, 255, 255), duration=3600):
+    ''' Fades from from_color to to_color over duration seconds
+
+    Args:
+        pixel_count (int): Number of LEDS in the strips $$ no_input
+        from_color (color): The color to start at
+        to_color (color): The color to end at
+        duration (int): The number of seconds to perform the fade over $$ input range(1, 86400)
+
+    Yields:
+        list: The colors to be output to the pixels
+    '''
+
+    time_start = time()
+    pixels = [from_color] * pixel_count
+    while True:
+        percent_complete = 1 - (time() - time_start) / duration
+        percent_complete = percent_complete if percent_complete < 1 else 1
+        color = _blend(from_color, to_color, percent_complete)
+        yield [color] * pixel_count
+
 
 # TODO: fade_in(duration), fade_out(duration), galaxy, snow, weather
