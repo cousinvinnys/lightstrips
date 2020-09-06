@@ -63,7 +63,7 @@ def show_effects():
 
         lights.add_job(Job(effects_dict[effect_name]['generator'](300, **effect_options), nice=effect_priority, ttl=effect_length, name=effects_dict[effect_name]['name']))
 
-        
+
 
     return render_template('effects.html', effects=effects_dict)
 
@@ -82,9 +82,9 @@ def run_lights(lights):
 
 if __name__ == '__main__':
 
-    # Get all the effect functions listed in the module, excluding utility functions 
+    # Get all the effect functions listed in the module, excluding utility functions
     functions = [o for o in getmembers(effects) if isfunction(o[1]) and o[0][0] != '_']
-    
+
     for function in functions:
         # Utility variable to make it so I don't have to type a big long mess over and over
         # Also a toxic spawnpeeker

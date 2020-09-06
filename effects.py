@@ -1,8 +1,14 @@
 import colorsys
+from random import randint
 
 
 def _hsv2rgb(h, s, v):
-    return tuple(round(i * 255) for i in colorsys.hsv_to_rgb(h,s,v))
+    return tuple(round(i * 255) for i in colorsys.hsv_to_rgb(h, s, v))
+
+
+def _color_brightness(color, brightness):
+    # Brightness (float): 0-1
+    return (int(brightness * color[0]), int(brightness * color[1]), int(brightness * color[2]))
 
 
 def breathe_color(pixel_count, color_1=(255, 255, 255), color_2=(0, 0, 0), speed=20):
@@ -68,6 +74,7 @@ def rainbow_breathe(pixel_count, speed=20):
         hue += speed / 2000
         hue %= 1
 
+
 def rainbow_wave(pixel_count, wave_speed=20, wave_period=100):
     """Scrolls a wave of RGB puke across the light Strips
 
@@ -84,22 +91,48 @@ def rainbow_wave(pixel_count, wave_speed=20, wave_period=100):
         yield [_hsv2rgb((offset + i / wave_period) % 1, 1, 1) for i in range(pixel_count)]
         offset += wave_speed / 2000
 
-def test_effect(pixel_count, integer=0, integer_with_range=0, floating=0.0, floating_with_range=0.0, color=(255, 255, 255)):
-    """Solely for testing the effect selection page. Displays an alternating checkerboard pattern
+
+def stars(pixel_count, starriness=10, color=(255, 255, 255)):
+    '''Twinkly little stars
 
     Args:
-        pixel_count (int): Number of LEDs in the strips $$ no_input
-        integer (int): An integer
-        integer_with_range (int): An integer with a range $$ range(0, 10)
-        floating (float): A floating point
-        floating_with_range (float): A floating point with a range $$ range(0, 100)
-        color (color): A color
-    """
+        pixel_count (int): Number of LEDS in the strips $$ no_input
+        starriness (float): Percentage of the light strip that should be taken by stars $$ range(0, 100)
+        color (color): The color of the stars
 
+    Yields:
+        list: The colors to be output to the pixels
+    '''
+
+    def get_star_count(stars):
+        space_count = stars.count(0)
+        star_count = len(stars) - space_count
+        return star_count
+
+    starriness /= 100.0
+    stars = [0] * pixel_count
     while True:
-        yield [([(0,0,0) * 3] + [(255,255,255) * 3]) * 50]
-        yield [([(0,0,0) * 3] + [(255,255,255) * 3]) * 50]
-        yield [([(0,0,0) * 3] + [(255,255,255) * 3]) * 50]
-        yield [([(255,255,255) * 3] + [(0,0,0) * 3]) * 50]
-        yield [([(255,255,255) * 3] + [(0,0,0) * 3]) * 50]
-        yield [([(255,255,255) * 3] + [(0,0,0) * 3]) * 50]
+        num_stars = get_star_count(stars)
+        star_ratio = num_stars / len(stars)
+
+        # Summon new stars
+        while star_ratio < starriness:
+            num_stars = get_star_count(stars)
+            star_ratio = num_stars / len(stars)
+            stars[randint(0, len(stars) - 1)] = randint(255 // 2, 255)
+
+        # Fade out current stars
+        for i in range(len(stars)):
+            if stars[i] > 0:
+                stars[i] -= 1
+                if stars[i] < 0:
+                    stars[i] = 0
+
+        # Create list to yield
+        pixels = []
+        for i in range(len(stars)):
+            pixels.append(_color_brightness(color, stars[i] / 255))
+
+        yield pixels
+
+# TODO: fade_in(duration), fade_out(duration), galaxy, snow, weather
